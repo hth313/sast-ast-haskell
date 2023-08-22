@@ -26,9 +26,9 @@ ruleSet SemanticInformation{..} = simpleRule
       | Unknown `elem` arg = one "maybe unsafe"
       | StringLiteral "DES/ECB/NoPadding" `elem` arg =
           one "unsafe"
-    simpleRule (CallMethod cls@(ClassName className) method _)
+    simpleRule (CallMethod cls method _args)
       | deprecatedMethod cls method =
-          one $ "call to deprecated method: " <> className <> "." <> method
+          one $ "call to deprecated method: " <> show cls <> "." <> method
     -- .... more rules
     simpleRule _ = mempty
 
@@ -59,7 +59,10 @@ data Exp = CallMethod ClassDesc MethodName [Exp]
            deriving (Show, Eq)
 
 data ClassDesc = ClassName String
-                 deriving (Show, Eq)
+                 deriving Eq
+
+instance Show ClassDesc where
+  show (ClassName name) = name
 
 type MethodName = Ident
 
